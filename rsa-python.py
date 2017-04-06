@@ -2,6 +2,8 @@
 from fractions import gcd
 from Crypto.PublicKey import RSA
 import gmpy
+import math
+
 c = 95272795986475189505518980251137003509292621140166383887854853863720692420204142448424074834657149326853553097626486371206617513769930277580823116437975487148956107509247564965652417450550680181691869432067892028368985007229633943149091684419834136214793476910417359537696632874045272326665036717324623992885
 d = ""
 dP = 8191957726161111880866028229950166742224147653136894248088678244548815086744810656765529876284622829884409590596114090872889522887052772791407131880103961
@@ -10,32 +12,17 @@ p = 1138748058490985498512533584824038422665392994275775638448938124220615719798
 q = 12972222875218086547425818961477257915105515705982283726851833508079600460542479267972050216838604649742870515200462359007315431848784163790312424462439629
 n = p * q
 ohm = (p-1) * (q-1)
+qInv = (1/q)%(p)
 
-#lets work out e
-found=0
-e = ohm
-while not found:
-	if(gcd(e, ohm) == 1):
-		print "found GCD"
-		found=1
-	else:
-		e=e-1
+m1 = pow(c,dP,p)
+m2 = pow(c,dQ,q)
+h= qInv * (m1-m2) %(p)
+m = m2 + h*q
+print(m) 
 
+def int2Text(number, size):
+    text = "".join([chr((number >> j) & 0xff)
+                    for j in reversed(range(0, size << 3, 8))])
+    return text.lstrip("\x00")
 
-#e = (dP)%(p-1) 
-#e2 = (dQ)%(q-1)
-#d = (1/e)%(ohm)
-d = long(gmpy.invert(e,(p-1)*(q-1)))
-qInv = (0-q)%(p)
-
-#dP = (1/e) mod (p-1)
-print "e: " + str(e)
-#print "e2: " + str(e2)
-print "ohm: " + str(ohm)
-print "qINV: " + str(qInv)
-print "d: " + str(d)
-
-key = RSA.construct((n,e,d))
-print "c: " + str(hex(key.decrypt(c)))
-
-
+print (int2Text(m,len(str(m))))
